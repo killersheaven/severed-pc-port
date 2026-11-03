@@ -1,0 +1,6 @@
+LIBRARY USER32.dll
+EXPORTS
+CreateWindowExA@48
+DefWindowProcA@16
+GetAsyncKeyState@4
+RegisterClassA@4

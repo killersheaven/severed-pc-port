@@ -1,0 +1,24 @@
+# Never commit game data or anything extracted from it
+*.DAT
+*.dat
+*.str
+*.toc
+*.viv
+*.VIV
+*.iso
+*.elf
+*.exa.snu
+*.vp6
+*.sbk
+*.vfb
+*.bin
+*.dll
+*.asi
+*.DMP
+*.dmp
+pairs/
+out/
+patch_out/
+*_state.json
+pc_fullnames.json
+__pycache__/

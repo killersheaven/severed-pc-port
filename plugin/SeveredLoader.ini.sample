@@ -1,0 +1,27 @@
+; SeveredLoader settings
+; [Launch] loads this level instead of the one the game was about to load.
+; Leave Folder/StreamList empty to turn it off. Checkpoint= picks the start point (no launch option needed).
+; Trigger=game  (default) swap when you pick New Game or Load in the menu (menus and pause menu work)
+; Trigger=boot  skip the main menu entirely (pause menu does not work)
+;
+; Base-game test:  Folder=ds_2            StreamList=ds_2.str            Checkpoint=XPATEL1026_CA72E6D_682629F_v3
+; Severed:         Folder=pdlc1_ch01_mng  StreamList=pdlc1_ch01_mng.str  Checkpoint=XONTREALPR_CB22182_E50854D_v3
+[Launch]
+Folder=pdlc1_ch01_mng
+StreamList=pdlc1_ch01_mng.str
+Trigger=newgame
+; Checkpoint=XONTREALPR_CB22182_E50854D_v3 = start with the intro cutscene; XMARINELLO_CB806AB_62AC82F_v3 = post_intro (skips it)
+Checkpoint=XMARINELLO_CB806AB_62AC82F_v3
+SafetyPatch=1
+LogStreams=1
+
+[Render]
+AmbientScale=1.0
+SeveredOnly=1
+
+[Debug]
+; Stage 13: released D3D objects bound again (use-after-free) are logged. 1 = also neutralise them (texture -> NULL,
+; draws with another released object skipped, double releases blocked); 0 = log only.
+StaleGuard=1
+; Stage 14: VB/IB/texture locks go through guarded copies; writes past a lock are logged and discarded (1) or allowed (0).
+LockGuard=1

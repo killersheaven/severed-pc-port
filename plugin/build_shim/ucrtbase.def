@@ -1,0 +1,25 @@
+LIBRARY ucrtbase.dll
+EXPORTS
+fopen
+fclose
+fputc
+fputs
+fwrite
+__stdio_common_vfprintf
+__stdio_common_vsprintf
+_stricmp
+strstr
+strrchr
+strcpy
+strcat
+strncpy
+strcmp
+strncmp
+strlen
+memcmp
+memcpy
+memset
+memmove
+atof
+malloc
+free

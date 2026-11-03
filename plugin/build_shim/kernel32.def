@@ -1,0 +1,27 @@
+LIBRARY KERNEL32.dll
+EXPORTS
+AddVectoredExceptionHandler@8
+CloseHandle@4
+CreateThread@24
+DisableThreadLibraryCalls@4
+InitializeCriticalSection@4
+EnterCriticalSection@4
+LeaveCriticalSection@4
+FlushInstructionCache@12
+GetCommandLineA@0
+GetCurrentProcess@0
+GetCurrentThreadId@0
+GetLocalTime@4
+GetTickCount@0
+GetModuleFileNameA@12
+GetModuleHandleA@4
+GetModuleHandleExA@12
+GetPrivateProfileIntA@16
+GetPrivateProfileStringA@24
+GetProcAddress@8
+LoadLibraryA@4
+SetUnhandledExceptionFilter@4
+Sleep@4
+VirtualAlloc@16
+VirtualProtect@16
+VirtualQuery@12
