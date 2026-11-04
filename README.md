@@ -9,7 +9,18 @@ Dead Space 2 (current Steam / EA App build, exe dated Feb 24 2011).
 into PC format, the in-place patch scripts used since build 19, and the `SeveredLoader.asi` plugin. You need your
 own copies of: PS3 Severed (`USRDIR\weller1`, e.g. from RPCS3), the PS3 base game (for reference pairs), and the PC game.
 
-## Status (2026-11-04, build 21 + plugin stage 17)
+## Quick start (v0.2-wip)
+1. Install **MarkerPatch** in your Dead Space 2 folder.
+2. Download `SeveredPC-v0.2-wip.zip` from Releases (or use `release/SeveredPC/` in this repo).
+3. **Windows:** double-click `install-windows.bat`. **Linux (Proton):** `./install-linux.sh`, then set the launch option
+   `WINEDLLOVERRIDES="dinput8=n,b" %command%`.
+4. Build the Severed data from your own PS3 copy once: [`docs/BUILDING_DATA.md`](docs/BUILDING_DATA.md)
+   (expert path today; a one-command builder is next).
+5. New Game → **Dead Space 2: Severed**.
+
+Details: [`release/SeveredPC/README-INSTALL.md`](release/SeveredPC/README-INSTALL.md).
+
+## Status (2026-11-04, v0.2-wip: build 21 + plugin stage 17)
 | Area | State |
 |---|---|
 | Severed in the episode/DLC menu ("Dead Space 2: Severed") | works (plugin) |
@@ -30,7 +41,9 @@ own copies of: PS3 Severed (`USRDIR\weller1`, e.g. from RPCS3), the PS3 base gam
   DAT writer `build_dat.py`, reference-pair tools (`dumppairs.py`, `validate.py`, `ps3base.py`), learned rule tables
   (`*_rules.json`, SimGroup maps, ID maps). `fmt_sbk.py` + `patch_sbk.py` = sound banks.
 - `patches/` — in-place DAT fixes applied after the last full build (b19 mesh/IB descriptor fixes, `repack_dat.py`), SBK report.
-- `docs/` — latest handoff notes (formats, crash analyses, addresses).
+- `docs/` — latest handoff notes (formats, crash analyses, addresses), `BUILDING_DATA.md`.
+- `release/SeveredPC/` — the install package: prebuilt plugin, ini, Windows/Linux install + uninstall scripts.
+- `pipeline/indexers/` — PowerShell indexers that list the PC game's assets (needed by the pipeline).
 
 ## Building the plugin (Linux, no Windows SDK needed)
 ```

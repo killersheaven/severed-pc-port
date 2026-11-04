@@ -22,3 +22,6 @@ patch_out/
 *_state.json
 pc_fullnames.json
 __pycache__/
+
+# prebuilt plugin shipped in the release package
+!release/SeveredPC/plugins/SeveredLoader.asi
