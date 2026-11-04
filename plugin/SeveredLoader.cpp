@@ -1,4 +1,6 @@
 // SeveredLoader.asi - Dead Space 2 (PC) plugin for the Severed DLC port.
+// Stage 17: Trigger=menu (no redirect: New Game follows the episode picked; main campaign stays main), save routing at
+//           GameMainLoop entry (ds_2 request + Severed start checkpoint -> Severed), Severed episode starts at 'initial'.
 // Stage 16: save/Continue diagnostics: StartLevel + SetStartCheckpoint callers, start-from-save (0xA732A0) data, Severed
 //           checkpoint GUIDs named in the log. No behaviour change.
 // Stage 15: D3D argument guard: SetTexture stage outside 0-15/256-260 (door crash: stage 177 overwrote d3d9's stream-table
@@ -33,6 +35,8 @@
 #include <stdlib.h>
 
 static HMODULE g_self = nullptr;
+static bool g_triggerMenu = false;   // Trigger=menu: no redirect at all; the episode chosen in the menu decides
+static int g_saveRouting = 1;        // [Launch] SaveRouting=1: a ds_2 level request whose start checkpoint is a Severed checkpoint goes to Severed
 static bool g_triggerNewGame = false;   // Trigger=newgame: New Game starts the level-list entry whose folder = [Launch] Folder
 static bool Readable(uintptr_t p, size_t n); static void ModOf(char* out, size_t n, uintptr_t a); static void HexLine(const char* tag, uintptr_t a, size_t len);
 static int g_staleGuard = 1;
@@ -266,7 +270,7 @@ extern "C" void __cdecl OnSetStartCheckpoint(const unsigned char* guid)
     const unsigned char* src = guid;
     char a[40], b[40];
     HexGuid(a, guid);
-    if (!g_triggerNewGame && !g_launchDoneFlag && LaunchConfigured() && g_launchCheckpoint[0])
+    if (!g_triggerNewGame && !g_triggerMenu && !g_launchDoneFlag && LaunchConfigured() && g_launchCheckpoint[0])
     {
         if (!g_haveGuid) g_haveGuid = ComputeGuid(g_launchCheckpoint);
         if (g_haveGuid) src = g_ourGuid;
@@ -316,6 +320,8 @@ static void LoadConfig()
     GetPrivateProfileStringA("Launch", "Trigger", "game", trig, sizeof(trig), ini);
     g_triggerBoot = _stricmp(trig, "boot") == 0;
     g_triggerNewGame = _stricmp(trig, "newgame") == 0;
+    g_triggerMenu = _stricmp(trig, "menu") == 0 || _stricmp(trig, "off") == 0;
+    g_saveRouting = GetPrivateProfileIntA("Launch", "SaveRouting", 1, ini);
     g_safetyPatch = GetPrivateProfileIntA("Launch", "SafetyPatch", 0, ini);
     g_logStreams = GetPrivateProfileIntA("Launch", "LogStreams", 1, ini);
     g_addEpisode = GetPrivateProfileIntA("Menu", "AddEpisode", 1, ini);
@@ -332,7 +338,8 @@ static void LoadConfig()
     Log("safety patch: %s, stream-load log: %s", g_safetyPatch ? "on" : "off", g_logStreams ? "on" : "off");
     if (g_launchFolder[0] && g_launchStream[0])
         Log("launch override: folder \"%s\", stream list \"%s\", trigger %s (from %s)", g_launchFolder, g_launchStream,
-            g_triggerNewGame ? "newgame (New Game starts this level through the game's own StartLevel)" : g_triggerBoot ? "boot (replaces the main menu)" : "game (replaces the first level started from the menu)", ini);
+            g_triggerMenu ? "menu (no redirect: New Game follows the episode picked in the menu)" : g_triggerNewGame ? "newgame (New Game starts this level through the game's own StartLevel)" : g_triggerBoot ? "boot (replaces the main menu)" : "game (replaces the first level started from the menu)", ini);
+    Log("save routing (Severed checkpoint + ds_2 request -> Severed): %s", g_saveRouting ? "on" : "off");
     if (g_launchFolder[0] && g_launchStream[0])
         Log("launch checkpoint: %s", g_launchCheckpoint[0] ? g_launchCheckpoint : "(none, the game's own start point is kept)");
     else
@@ -354,7 +361,20 @@ extern "C" void __cdecl OnGameLoopEnter(uintptr_t arg, uintptr_t self)
     UpdateAmbient();
     bool isMenu = _stricmp(stream, "frontend.str") == 0;
     bool fire = g_triggerBoot ? isMenu : (!isMenu && stream[0]);
-    if (!g_launchDone && !g_triggerNewGame && g_launchFolder[0] && g_launchStream[0] && fire)
+    if (g_saveRouting && !isMenu && _stricmp(folder, "ds_2") == 0)
+    {
+        const unsigned char* g = (const unsigned char*)kStartCheckpointGuid;
+        const char* lab = SevCpLabel(g);
+        if (lab)
+        {
+            strncpy(folder, "pdlc1_ch01_mng", 127); folder[127] = 0;
+            strncpy(stream, "pdlc1_ch01_mng.str", 127); stream[127] = 0;
+            g_inSevered = true; UpdateAmbient();
+            Log("  -> save routing: start checkpoint is Severed's \"%s\", ds_2 request replaced with \"%s\" \"%s\"", lab, folder, stream);
+        }
+        else { char d[160]; DescribeGuid(d, sizeof(d), g); Log("  save routing: ds_2 request kept (start checkpoint %s)", d); }
+    }
+    if (!g_launchDone && !g_triggerNewGame && !g_triggerMenu && g_launchFolder[0] && g_launchStream[0] && fire)
     {
         g_launchDone = true;
         strncpy(folder, g_launchFolder, 127); folder[127] = 0;
@@ -878,7 +898,7 @@ static DWORD WINAPI Worker(LPVOID)
     HMODULE game = GetModuleHandleA(nullptr);
     char exe[MAX_PATH] = {};
     GetModuleFileNameA(game, exe, MAX_PATH);
-    Log("SeveredLoader stage 16 (save/Continue diagnostics; D3D argument guard; lock guard + stream-record check; draw ring + released-object guard; mesh finder; draw guard; texture guard; dynbuf lock log; F9 capture: occlusion px + VB bounds + IB ranges; ambient scale + F10, stencil in F9 capture; F9 d3d9 frame capture + constants/shaders; menu text, Severed episode, Trigger=newgame via StartLevel, launch override, crash logger, stream-load log) loaded");
+    Log("SeveredLoader stage 17 (Trigger=menu + save routing; save/Continue diagnostics; D3D argument guard; lock guard + stream-record check; draw ring + released-object guard; mesh finder; draw guard; texture guard; dynbuf lock log; F9 capture: occlusion px + VB bounds + IB ranges; ambient scale + F10, stencil in F9 capture; F9 d3d9 frame capture + constants/shaders; menu text, Severed episode, Trigger=newgame via StartLevel, launch override, crash logger, stream-load log) loaded");
     Log("exe: %s, base 0x%08X", exe, static_cast<unsigned>(reinterpret_cast<uintptr_t>(game)));
     Log("command line: %s", GetCommandLineA());
     Log("MarkerPatch (dinput8.dll) present: %s", GetModuleHandleA("dinput8.dll") ? "yes" : "no");

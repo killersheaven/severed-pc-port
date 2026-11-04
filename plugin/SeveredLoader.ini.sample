@@ -1,6 +1,7 @@
 ; SeveredLoader settings
 ; [Launch] loads this level instead of the one the game was about to load.
 ; Leave Folder/StreamList empty to turn it off. Checkpoint= picks the start point (no launch option needed).
+; Trigger=menu  no redirect: New Game follows the episode picked in the menu (main campaign or Severed)
 ; Trigger=game  (default) swap when you pick New Game or Load in the menu (menus and pause menu work)
 ; Trigger=boot  skip the main menu entirely (pause menu does not work)
 ;
@@ -9,11 +10,13 @@
 [Launch]
 Folder=pdlc1_ch01_mng
 StreamList=pdlc1_ch01_mng.str
-Trigger=newgame
+Trigger=menu
 ; Checkpoint=XONTREALPR_CB22182_E50854D_v3 = start with the intro cutscene; XMARINELLO_CB806AB_62AC82F_v3 = post_intro (skips it)
-Checkpoint=XMARINELLO_CB806AB_62AC82F_v3
+Checkpoint=XONTREALPR_CB22182_E50854D_v3
 SafetyPatch=1
 LogStreams=1
+; Stage 17: a main-campaign (ds_2) level request whose start checkpoint is one of Severed's goes to Severed (Continue/Load of Severed saves).
+SaveRouting=1
 
 [Render]
 AmbientScale=1.0

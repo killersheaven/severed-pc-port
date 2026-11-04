@@ -1,5 +1,7 @@
 # Dead Space 2: Severed — PC port (early, private, v0.1)
 
+> ⚠️ **HIGHLY WORK IN PROGRESS.** Expect crashes, missing effects, placeholder VFX and debug logging. Not ready for play-throughs or sharing.
+
 Work-in-progress port of the console-exclusive **Severed** DLC (Gabe Weller, 2 chapters) to the PC version of
 Dead Space 2 (current Steam / EA App build, exe dated Feb 24 2011).
 
@@ -7,11 +9,13 @@ Dead Space 2 (current Steam / EA App build, exe dated Feb 24 2011).
 into PC format, the in-place patch scripts used since build 19, and the `SeveredLoader.asi` plugin. You need your
 own copies of: PS3 Severed (`USRDIR\weller1`, e.g. from RPCS3), the PS3 base game (for reference pairs), and the PC game.
 
-## Status (2026-11-03, build 21 + plugin stage 16)
+## Status (2026-11-04, build 21 + plugin stage 17)
 | Area | State |
 |---|---|
 | Severed in the episode/DLC menu ("Dead Space 2: Severed") | works (plugin) |
-| New Game → Severed, Continue from a Severed save, respawn after death | works (Continue currently via the New Game redirect; proper save routing in progress) |
+| New Game | follows the episode picked in the menu: main campaign → main game, Severed → Severed from its very start (`initial`, with intro) (`Trigger=menu`) |
+| Continue / Load of a Severed save | routed to Severed when the save's checkpoint is one of Severed's 25 (`SaveRouting=1`); **untested in this form** |
+| Respawn after death | works |
 | Level geometry, collision, characters, animation | converted; plays through drill tunnels, bomb run, quarry, elevator |
 | Quarry door crash | fixed by the plugin's D3D argument guard (engine passes SetTexture stage 417); data source not yet fixed |
 | Sound banks (SBK) | converted (1,461 banks; Gabe's voice/foley/ambience) |
@@ -37,7 +41,8 @@ clang++ -target i686-w64-windows-gnu -O2 -std=c++17 -fno-exceptions -fno-rtti -f
 ld.lld -m i386pe --shared -e _DllMain@12 --image-base=0x10000000 --dynamicbase --nxcompat -s --subsystem windows \
        -o SeveredLoader.asi sl.o libkernel32.a libuser32.a libucrtbase.a
 ```
-Requires MarkerPatch (`dinput8.dll`, `EnableSeveredDLC = 1`). Copy `SeveredLoader.asi` + `SeveredLoader.ini` to `<game>\plugins\`.
+Requires MarkerPatch (`dinput8.dll`, `EnableSeveredDLC = 1`). Copy `SeveredLoader.asi` + `SeveredLoader.ini` (from `SeveredLoader.ini.sample`) to `<game>\plugins\`.
+Key ini settings: `[Launch] Trigger=menu`, `Checkpoint=` (Severed episode start point), `SaveRouting=1`; `[Debug] StaleGuard`, `LockGuard` (diagnostics; `LockGuard=0` removes most stutter).
 
 ## Building the data (current workflow, Linux VM)
 1. `port_all.py` / `runall.sh` converts each PS3 Severed stream (`weller1\**\*.str`) to PC (`out/`), using base-game PS3/PC
