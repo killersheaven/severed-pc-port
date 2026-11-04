@@ -13,8 +13,8 @@ own copies of: PS3 Severed (`USRDIR\weller1`, e.g. from RPCS3), the PS3 base gam
 | Area | State |
 |---|---|
 | Severed in the episode/DLC menu ("Dead Space 2: Severed") | works (plugin) |
-| New Game | follows the episode picked in the menu: main campaign → main game, Severed → Severed from its very start (`initial`, with intro) (`Trigger=menu`) |
-| Continue / Load of a Severed save | routed to Severed when the save's checkpoint is one of Severed's 25 (`SaveRouting=1`); **untested in this form** |
+| New Game | confirmed 2026-11-04 (Severed episode → native StartLevel index 1, `initial` checkpoint). Follows the episode picked in the menu: main campaign → main game, Severed → Severed from its very start (`initial`, with intro) (`Trigger=menu`) |
+| Continue / Load of a Severed save | routed to Severed when the save's checkpoint is one of Severed's 25 (`SaveRouting=1`); reported working by the tester, not yet confirmed in a log |
 | Respawn after death | works |
 | Level geometry, collision, characters, animation | converted; plays through drill tunnels, bomb run, quarry, elevator |
 | Quarry door crash | fixed by the plugin's D3D argument guard (engine passes SetTexture stage 417); data source not yet fixed |
